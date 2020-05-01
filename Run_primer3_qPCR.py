@@ -47,43 +47,27 @@ def parse_primer3(infile):
             m = s.search(line)
             if m:
                 leftm = m.groups(0)[0]
-            else:
-                leftm = ''
         elif line.startswith('PRIMER_RIGHT_0_TM'):
             m = s.search(line)
             if m:
                 rightm = m.groups(0)[0]
-            else:
-                rightm = ''
         elif line.startswith('PRIMER_LEFT_0_SEQUENCE'):
             m = s.search(line)
             if m:
                 primerF = m.groups(0)[0]
-            else:
-                primerF = ''
         elif line.startswith('PRIMER_RIGHT_0_SEQUENCE'):
             m = s.search(line)
             if m:
                 primerR = m.groups(0)[0]
-            else:
-                primerR = ''
         elif line.startswith('PRIMER_PAIR_0_PRODUCT_SIZE'):
             m = s.search(line)
             if m:
                 size = m.groups(0)[0]
-            else:
-                size = ''
         elif line.startswith('='):
             count += 1
             print '>%s %s %s %s %s' % (count, locus, size, leftm, rightm)
             print '%sF 5\'-3\': %s' % (locus, primerF)
             print '%sR 5\'-3\': %s' % (locus, primerR)
-            locus = ''
-            size = ''
-            leftm = ''
-            rightm = ''
-            primerF = ''
-            primerR = ''
     ifile.close()
 
 if __name__ == '__main__':
@@ -116,11 +100,8 @@ if __name__ == '__main__':
             start = m.groups(0)[1]
             end   = m.groups(0)[2]
             length  = str(int(end) - int(start) + 1)
-            length2 = '200' if int(end) - int(start) < 200 else str(int(end) - int(start) + 1)
-            length3 = 2000
-            if length > 2000:
-                length3 = int(length) + 500
-        seq = str(record.seq).rstrip()
+            length2 = '80' if int(end) - int(start) < 80 else str(int(end) - int(start) + 1)   
+        seq = str(record.seq.upper()).rstrip()
         
         cmd = 'SEQUENCE_ID='
         cmd += id
@@ -136,17 +117,17 @@ PRIMER_OPT_SIZE=22
 PRIMER_MIN_SIZE=18
 PRIMER_MAX_SIZE=24
 PRIMER_MAX_NS_ACCEPTED=1
-PRIMER_PRODUCT_SIZE_RANGE=''' + length2 + '''-''' + str(length3) + '''
+PRIMER_PRODUCT_SIZE_RANGE=''' + length2 + '''-200
 P3_FILE_FLAG=1
 SEQUENCE_INTERNAL_EXCLUDED_REGION=''' + str(start) + ''',''' + length + '''
 PRIMER_EXPLAIN_FLAG=1
-PRIMER_THERMODYNAMIC_PARAMETERS_PATH=/opt/linux/centos/7.x/x86_64/pkgs/primer3/2.3.6/src/primer3_config/
+PRIMER_THERMODYNAMIC_PARAMETERS_PATH=/opt/primer3/2.3.5/src/primer3_config/
 ='''
         print >> ofile, cmd
     ofile.close()
    
     primer3 ='''
-/opt/linux/centos/7.x/x86_64/pkgs/primer3/2.3.6/src/primer3_core < primer3.infile > primer3.outfile
+/opt/primer3/2.3.5/src/primer3_core < primer3.infile > primer3.outfile
 ''' 
     os.system(primer3)    
     parse_primer3('primer3.outfile')

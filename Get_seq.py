@@ -1,4 +1,3 @@
-#!/opt/Python/2.7.3/bin/python
 from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
@@ -41,6 +40,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--input')
     parser.add_argument('-o', '--output')
+    parser.add_argument('-f', '--flank')
     parser.add_argument('-v', dest='verbose', action='store_true')
     args = parser.parse_args()
     try:
@@ -51,7 +51,9 @@ if __name__ == '__main__':
 
     if args.output is None:
         args.output = 'seq.fa'
-   
+    if args.flank is None:  
+        args.flank = 300
+    flank = int(args.flank)
     loci= readtable(args.input)
     ref = defaultdict(str)
     for record in SeqIO.parse('/rhome/cjinfeng/BigData/00.RD/seqlib/MSU_r7.fa',"fasta"):
@@ -62,9 +64,9 @@ if __name__ == '__main__':
     ofile = open(args.output,"w")
     for locus in sorted(loci, key=int):
         chrseq = ref[loci[locus][1]]
-        end2 = int(loci[locus][3]) - int(loci[locus][2]) + 1 + 200
-        target = chrseq[int(loci[locus][2])-200:int(loci[locus][3])+200]
-        newid  = loci[locus][0] + ':200-' + str(end2)
+        end2 = int(loci[locus][3]) - int(loci[locus][2]) + 1 + int(flank) 
+        target = chrseq[int(loci[locus][2])-int(flank):int(loci[locus][3])+int(flank)]
+        newid  = loci[locus][0] + ':' + str(flank) + '-' + str(end2)
         print newid, target 
         newrecord = SeqRecord(Seq(target),id=newid,description="")
         SeqIO.write(newrecord,ofile,"fasta")
